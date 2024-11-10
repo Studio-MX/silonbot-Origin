@@ -1,4 +1,4 @@
-import {ServerList} from '../../models/ServerList';
+import {ServerList} from '../models/ServerList';
 async function UpdateServerList(client) {
     await ServerList.destroy({where: {}});
     client.guilds.cache.forEach((guild) => {

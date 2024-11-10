@@ -1,7 +1,6 @@
 import {ActionRowBuilder, ActivityType, ButtonBuilder, ButtonStyle, EmbedBuilder} from 'discord.js';
 import {fishingService} from '../services/fishing.service';
-import {User} from '../../models/User';
-import {handleButtonInteraction} from './choice-game.command';
+import {User} from '../models/User';
 import {rateNames} from '../types';
 import {UpdateBotState} from '../events/updateBotState';
 export async function handleFishingInteraction(interaction) {
@@ -68,8 +67,28 @@ export async function handleFishingInteraction(interaction) {
                             components: [],
                         });
                     } else {
+                        let color = 0x808080;
+
+                        switch (fish.rate) {
+                            case 'ultra-legendary':
+                                color = 0xff0000;
+                                break;
+                            case 'legendary':
+                                color = 0xffa500;
+                                break;
+                            case 'epic':
+                                color = 0xffd700;
+                                break;
+                            case 'rare':
+                                color = 0x0000ff;
+                                break;
+                            case 'common':
+                                color = 0x808080;
+                                break;
+                        }
+
                         const fishEmbed = new EmbedBuilder()
-                            .setColor(result.fish.rate === 'legendary' || result.fish.rate === 'ultra-legendary' ? 0xffea00 : 0x00ae86)
+                            .setColor(color)
                             .setTitle(`🐟 ${result.fish.name}을(를) 잡았습니다!`)
                             .addFields([
                                 {
@@ -156,8 +175,15 @@ export async function handleFishingInteraction(interaction) {
         case 'trash_process':
             await handleTrashDecision(interaction, customId);
             break;
+
+        case 'stop_fishing': {
+            const stopEmbed = new EmbedBuilder().setTitle('**낚시 중지**').setDescription('낚싯대와 장비들을 정리했다.').setColor(0x808080);
+
+            await interaction.update({embeds: [stopEmbed], components: []});
+            fishingService.endFishing(interaction.user.id);
+        }
+
         default:
-            await handleButtonInteraction(interaction);
             break;
     }
 }

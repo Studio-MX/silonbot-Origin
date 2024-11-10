@@ -1,7 +1,7 @@
 import {EmbedBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import {FacilityService} from '../../services/facility.service';
-import {FishingSpot} from '../../../models/FishingSpot';
+import {FishingSpot} from '../../models/FishingSpot';
 import {CommandRegistry} from '../../core/CommandRegistry';
 const commandRegistry = CommandRegistry.getInstance();
 export class DestroyFacilityCommand extends BaseCommand {

@@ -1,4 +1,4 @@
-import {Feedback, BannedUser} from '../../models/Feedback';
+import {Feedback, BannedUser} from '../models/Feedback';
 import crypto from 'crypto';
 export class FeedbackSystem {
     static instance;

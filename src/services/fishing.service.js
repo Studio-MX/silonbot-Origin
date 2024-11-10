@@ -1,7 +1,7 @@
 import {gameConfig} from '../config/game.config';
-import {FishingSpot} from '../../models/FishingSpot';
-import {User} from '../../models/User';
-import {FishingHistory} from '../../models/FishingHistory';
+import {FishingSpot} from '../models/FishingSpot';
+import {User} from '../models/User';
+import {FishingHistory} from '../models/FishingHistory';
 import {FacilityService} from './facility.service';
 import {deepCopy} from '../utils/deepCopy.util';
 class FishingService {

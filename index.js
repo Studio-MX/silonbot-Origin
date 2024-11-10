@@ -10,6 +10,7 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
+
 const commandRegistry = CommandRegistry.getInstance();
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user?.tag}`);
@@ -37,7 +38,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                 console.error(error);
                 if (!interaction.replied && !interaction.deferred) {
                     await interaction.reply({
-                        content: `명령어 실행 중 오류가 발생했습니다.\n${error}`,
+                        content: `오류가 발생해써! \n${error}`,
                         ephemeral: true,
                     });
                 }
@@ -48,4 +49,5 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
+client.on(Events.Error, () => {});
 client.login(process.env.DISCORD_TOKEN);

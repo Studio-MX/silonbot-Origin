@@ -1,5 +1,5 @@
 import {Model, DataTypes} from 'sequelize';
-import {sequelize} from '../sequelize';
+import {sequelize} from '../../sequelize';
 export class FishingSpot extends Model {}
 FishingSpot.init(
     {

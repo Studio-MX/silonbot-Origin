@@ -1,4 +1,4 @@
-import {FishingSpot} from '../../models/FishingSpot';
+import {FishingSpot} from '../models/FishingSpot';
 export class FacilityService {
     static facilities = new Map();
     static registerFacility(facilityClass) {

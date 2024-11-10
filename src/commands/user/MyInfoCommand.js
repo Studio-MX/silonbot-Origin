@@ -1,6 +1,6 @@
 import {EmbedBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
-import {User} from '../../../models/User';
+import {User} from '../../models/User';
 import {CommandRegistry} from '../../core/CommandRegistry';
 const commandRegistry = CommandRegistry.getInstance();
 export class MyInfoCommand extends BaseCommand {

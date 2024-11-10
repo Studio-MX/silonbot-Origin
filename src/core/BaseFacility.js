@@ -1,4 +1,4 @@
-import {FishingSpot} from '../../models/FishingSpot';
+import {FishingSpot} from '../models/FishingSpot';
 export class BaseFacility {
     channelId;
     constructor(channelId) {

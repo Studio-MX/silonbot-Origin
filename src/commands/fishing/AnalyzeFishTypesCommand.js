@@ -3,7 +3,7 @@ import {BaseCommand} from '../../core/BaseCommand';
 import {FacilityService} from '../../services/facility.service';
 import {CommandRegistry} from '../../core/CommandRegistry';
 import {gameConfig} from '../../config/game.config';
-import {FishingSpot} from '../../../models/FishingSpot';
+import {FishingSpot} from '../../models/FishingSpot';
 import {deepCopy} from '../../utils/deepCopy.util';
 import {rateNames} from '../../types';
 const commandRegistry = CommandRegistry.getInstance();
@@ -19,7 +19,7 @@ export class AnalyzeFishTypesCommand extends BaseCommand {
         const spot = await FishingSpot.findOne({where: {channelId}});
         if (!spot) {
             return {
-                content: '이 채널에는 낚시터가 없습니다.',
+                content: '이 채널에는 낚시터가 없어!',
                 success: false,
                 ephemeral: true,
             };
