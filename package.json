@@ -1,0 +1,17 @@
+{
+    "name": "slion-bot",
+    "module": "index.ts",
+    "type": "module",
+    "scripts": {
+        "dev": "bun --watch run index.js",
+        "prettier": "prettier --write ."
+    },
+    "dependencies": {
+        "discord.js": "^14.16.3",
+        "sequelize": "^6.37.5",
+        "sqlite3": "^5.1.7"
+    },
+    "devDependencies": {
+        "prettier": "^3.3.3"
+    }
+}
