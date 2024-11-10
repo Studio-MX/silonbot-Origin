@@ -37,7 +37,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
                 console.error(error);
                 if (!interaction.replied && !interaction.deferred) {
                     await interaction.reply({
-                        content: '명령어 실행 중 오류가 발생했습니다!\n{error}',
+                        content: `명령어 실행 중 오류가 발생했습니다.\n${error}`,
                         ephemeral: true,
                     });
                 }
@@ -47,6 +47,5 @@ client.on(Events.InteractionCreate, async (interaction) => {
         await handleFishingInteraction(interaction);
     }
 });
-/* 저는 아날로그를 쓰기 때문에 이 부분을 주석하지만 디지털화된 분들은 이 부분 주석 풀고 밑에 거 주석 치세요
-client.login(process.env.DISCORD_TOKEN); */
-client.login("insert-your-token");
+
+client.login(process.env.DISCORD_TOKEN);
