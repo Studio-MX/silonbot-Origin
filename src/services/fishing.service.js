@@ -75,20 +75,20 @@ class FishingService {
     async buyFishingSpot(channelId, userId) {
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
         if (spot.isPurchaseDisabled) {
-            return {success: false, error: '이 낚시터는 현재 매입이 금지되어 있습니다!'};
+            return {success: false, error: '이 낚시터는 현재 매입이 금지되어 있어!'};
         }
         if (spot.ownerId === userId) {
-            return {success: false, error: '이미 당신이 주인입니다.'};
+            return {success: false, error: '이미 너가 주인이잖아!'};
         }
         const buyer = await User.findOne({where: {id: userId}});
         if (!buyer) {
-            return {success: false, error: '낚시를 적어도 한 번은 하셔야 합니다.'};
+            return {success: false, error: '낚시를 적어도 한 번은 해야 해!'};
         }
         if (buyer.money < spot.minPurchasePrice) {
-            return {success: false, error: `낚시터를 구매하기 위해서는 최소 ${spot.minPurchasePrice}원이 필요합니다!`};
+            return {success: false, error: `낚시터를 구매하기 위해서는 최소 ${spot.minPurchasePrice}원이 필요해!`};
         }
         if (spot.ownerId) {
             const currentOwner = await User.findOne({where: {id: spot.ownerId}});
@@ -106,14 +106,14 @@ class FishingService {
     }
     async setFishingSpotFee(channelId, userId, fee) {
         if (fee < 0 || fee > 100) {
-            return {success: false, error: '수수료는 0%에서 100% 사이여야 합니다!'};
+            return {success: false, error: '수수료는 0%에서 100% 사이여야 해!'};
         }
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
         if (spot.ownerId !== userId) {
-            return {success: false, error: '낚시터 주인만 수수료를 설정할 수 있습니다!'};
+            return {success: false, error: '낚시터 주인만 수수료를 설정할 수 있어!'};
         }
         spot.fee = fee;
         await spot.save();
@@ -121,14 +121,14 @@ class FishingService {
     }
     async setSpotTerrain(channelId, userId, terrain) {
         if (!gameConfig.terrains[terrain]) {
-            return {success: false, error: '지형이 없습니다!'};
+            return {success: false, error: '지형이 없어!'};
         }
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
         if (spot.ownerId !== userId) {
-            return {success: false, error: '낚시터 주인만 지형를 설정할 수 있습니다!'};
+            return {success: false, error: '낚시터 주인만 지형를 설정할 수 있어!'};
         }
         spot.terrain = terrain;
         await spot.save();
@@ -151,7 +151,7 @@ class FishingService {
     async startFishing(userId, channelId) {
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
         const waitTime = this.getRandomWaitTime();
         const biteTime = this.getRandomFishBiteTime();
@@ -200,7 +200,7 @@ class FishingService {
         if (!state.bitedAt || Date.now() - state.bitedAt < gameConfig.minCatchTime) {
             return {
                 success: false,
-                reason: '너무 빨리 낚싯대를 올렸습니다! 물고기가 도망갔습니다.',
+                reason: '찌를 올렸지만 아무 것도 없었다...',
             };
         }
         let escapeChance = gameConfig.fishEscapeChance;
@@ -216,7 +216,7 @@ class FishingService {
         if (Math.random() < escapeChance) {
             return {
                 success: false,
-                reason: '물고기가 도망갔습니다!',
+                reason: '물고기가 떠나가 버렸다...',
             };
         }
         if (state.fishType) {
