@@ -25,7 +25,7 @@ export const gameConfig: GameConfig = {
                 {name: '벤츠 배터리', chance: 0.9, price: 100, length: 1500, rate: 'common', type: 'trash'},
                 {name: '삼성 갤럭시 S5의 형상을 띈 반창고', chance: 0.9, price: 142, length: 150, rate: 'common', type: 'trash'},
                 {name: '담배꽁초', chance: 2, price: 10, length: 150, rate: 'common', type: 'trash'},
-                {name: '삼성 갤럭시 S22', chance: 0.9, price: 1000, length: 150, rate: 'common', type: 'trash'},
+                {name: 'undefined', chance: 0.9, price: 100, length: 150000, rate: 'common', type: 'trash'},
                 {name: '참붕어빵 포장지', chance: 1.2, price: 10, length: 15, rate: 'common', type: 'trash'},
                 {name: '참붕어', chance: 1.4, price: 230, length: 43, rate: 'common', type: 'fish'},
                 {name: '산천어', chance: 1.2, price: 410, length: 51, rate: 'common', type: 'fish'},
