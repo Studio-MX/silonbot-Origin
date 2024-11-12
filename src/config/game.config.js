@@ -5,7 +5,16 @@ export const gameConfig = {
     terrains: [
         {
             name: '바다',
-            fishTypes: [{name: '고등어', chance: 0.5, price: 10, length: 60, rate: 'common'}, ...trashs, ...ultraLegendary],
+            fishTypes: [
+{name: '이프의 서버', chance: 0.3, price: 100000, length: 500, rate: 'common', type: 'trash'}
+{name: '폐자동차', chance: 0.09, price: 100000, length: 650, rate: 'common', type: 'trash'}
+{name: '휴지조각', chance: 1, price: 3, length: 4, rate: 'common', type: 'trash'}
+{name: '` DROP TABLE users; --', chance: 0.7, price: 100, length: 0.5, rate: 'common', type: 'trash'}
+{name: 'NaN', chance: 0.6, price: 100, length: 0.5, rate: 'common', type: 'trash'}
+{name: '밀랍칠한 약간 녹슨 깎인 구리 반블록', chance: 0.6, price: 100, length: 0.5, rate: 'common', type: 'trash'}
+{name: '삼성 갤럭시 S22', chance: 0.9, price: 1000, length: 150, rate: 'common', type: 'trash'}
+{name: '고등어', chance: 7, price: 100, length: 35, rate: 'common'},
+{name: '새우', chance: 5, price: 150, length: 60, rate: 'common'} ],
         },
     ],
     fishWaitTime: {min: 2000, max: 5000},
