@@ -1,7 +1,9 @@
+/* 필요없는 코드인데 혹시 모르니 주석만 해둠
 const ultraLegendary = [{name: '123', chance: 0.0001, price: 1000, length: 300, type: 'dino', rate: 'ultra-legendary'}];
-const trashs = [{name: '낚시 바늘', chance: 0.01, price: -20, length: 5, type: 'trash'}];
-
+const trashs = [{name: '낚시 바늘', chance: 0.01, price: -20, length: 5, type: 'trash'}]; */
 export const gameConfig = {
+/* 물고기 양식 안내
+{name: '물고기 이름', chance: 낚을 확률(최댓값 10), price: 평균 가격, length: 길이, rate: '등급', type: '물고기(fish)/쓰레기(trash)'} */
     terrains: [
         {
             name: '바다',
