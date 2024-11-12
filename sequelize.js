@@ -1,5 +1,5 @@
 import {Sequelize} from 'sequelize';
-export const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './database.db',
-});
+
+const data = JSON.parse(process.env.DATABASE_URL);
+
+export const sequelize = new Sequelize(...(data[0] ? [...data] : [data]));

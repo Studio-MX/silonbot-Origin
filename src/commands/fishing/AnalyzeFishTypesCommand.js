@@ -24,6 +24,7 @@ export class AnalyzeFishTypesCommand extends BaseCommand {
                 ephemeral: true,
             };
         }
+
         const fishTypes = deepCopy(gameConfig.terrains[spot.terrain].fishTypes);
         const rateData = {
             common: {count: 0, chance: 0, fishNames: []},
