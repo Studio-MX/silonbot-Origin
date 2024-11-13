@@ -81,7 +81,7 @@ class FishingService {
     async togglePurchaseDisabled(channelId: string): Promise<{success: boolean; error?: string; isDisabled?: boolean}> {
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
 
         spot.isPurchaseDisabled = !spot.isPurchaseDisabled;
@@ -96,11 +96,11 @@ class FishingService {
     async buyFishingSpot(channelId: string, userId: string): Promise<{success: boolean; error?: string}> {
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
 
         if (spot.isPurchaseDisabled) {
-            return {success: false, error: '이 낚시터는 현재 매입이 금지되어 있습니다!'};
+            return {success: false, error: '이 낚시터는 현재 매입이 금지되어 있어!'};
         }
 
         if (spot.ownerId === userId) {
@@ -109,11 +109,11 @@ class FishingService {
 
         const buyer = await User.findOne({where: {id: userId}});
         if (!buyer) {
-            return {success: false, error: '낚시를 적어도 한 번은 하셔야 합니다.'};
+            return {success: false, error: '낚시를 적어도 한 번은 해야 해'};
         }
 
         if (buyer.money < spot.minPurchasePrice) {
-            return {success: false, error: `낚시터를 구매하기 위해서는 최소 ${spot.minPurchasePrice}원이 필요합니다!`};
+            return {success: false, error: `낚시터를 구매하려면 최소 ${spot.minPurchasePrice}원이 필요해!`};
         }
 
         if (spot.ownerId) {
@@ -136,16 +136,16 @@ class FishingService {
 
     async setFishingSpotFee(channelId: string, userId: string, fee: number): Promise<{success: boolean; error?: string}> {
         if (fee < 0 || fee > 100) {
-            return {success: false, error: '수수료는 0%에서 100% 사이여야 합니다!'};
+            return {success: false, error: '수수료는 0% ~ 100% 여야 해!'};
         }
 
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
 
         if (spot.ownerId !== userId) {
-            return {success: false, error: '낚시터 주인만 수수료를 설정할 수 있습니다!'};
+            return {success: false, error: '남의 땅을 건드리면 안대!\n낚시터 수수료는 낚시터 소유자만 수정할 수 있습니다.'};
         }
 
         spot.fee = fee;
@@ -195,7 +195,7 @@ class FishingService {
     async startFishing(userId: string, channelId: string): Promise<{success: boolean; error?: string}> {
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+            return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
 
         const waitTime = this.getRandomWaitTime();
@@ -267,7 +267,7 @@ class FishingService {
         if (!state.bitedAt || Date.now() - state.bitedAt < gameConfig.minCatchTime) {
             return {
                 success: false,
-                reason: '너무 빨리 낚싯대를 올렸습니다! 물고기가 도망갔습니다.',
+                reason: '찌를 너무 빨리 건졌나...?',
             };
         }
 
@@ -285,7 +285,7 @@ class FishingService {
         if (Math.random() < escapeChance) {
             return {
                 success: false,
-                reason: '물고기가 도망갔습니다!',
+                reason: '물고기가 도망갔다...',
             };
         }
 
