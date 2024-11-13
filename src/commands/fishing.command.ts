@@ -14,7 +14,7 @@ export async function handleFishingInteraction(interaction: ButtonInteraction) {
             const state = fishingService.getFishingState(interaction.user.id);
             if (!state) return;
             if (state.userId !== state.userId) {
-                const warningEmbed = new EmbedBuilder().setColor('#ffcc00').setTitle('경고').setDescription('다른 사람의 낚시를 건드리면 안되죠!');
+                const warningEmbed = new EmbedBuilder().setColor('#ffcc00').setTitle('주의').setDescription('다른 사람의 낚시를 건드리면 안대!');
                 await interaction.reply({
                     embeds: [warningEmbed],
                     ephemeral: true,
@@ -44,7 +44,7 @@ export async function handleFishingInteraction(interaction: ButtonInteraction) {
                     if (result.fish.type === 'trash') {
                         const trashEmbed = new EmbedBuilder()
                             .setColor(0x00ae86)
-                            .setTitle(`🗑️ 쓰레기 ${result.fish.name}(을)를 낚았습니다!`)
+                            .setTitle(`🗑️ ${result.fish.name}(을)를 낚아써...`)
                             .setDescription('이 쓰레기는 팔 수 있는 쓰레기입니다.')
                             .addFields(
                                 ...[
@@ -92,7 +92,7 @@ export async function handleFishingInteraction(interaction: ButtonInteraction) {
 
                         const fishEmbed = new EmbedBuilder()
                             .setColor(color)
-                            .setTitle(`🐟 ${result.fish.name}을(를) 잡았습니다!`)
+                            .setTitle(`🐟 ${result.fish.name}을(를) 낚아써!`)
                             .addFields([
                                 {
                                     name: '등급',
@@ -146,8 +146,8 @@ export async function handleFishingInteraction(interaction: ButtonInteraction) {
                     );
                     const trashEmbed = new EmbedBuilder()
                         .setColor('#ff0000')
-                        .setTitle('🗑️ 쓰레기를 낚았습니다...')
-                        .setDescription(`${result.fish.name}을(를) 낚았습니다.`)
+                        .setTitle('🗑️ 쓰레기를 낚아써...')
+                        .setDescription(`${result.fish.name}을(를) 낚아써...`)
                         .addFields({name: '처리 비용', value: `${Math.abs(earnedMoney).toFixed(0)}원`});
                     await interaction.update({
                         content: '',
@@ -166,7 +166,7 @@ export async function handleFishingInteraction(interaction: ButtonInteraction) {
                         new EmbedBuilder()
                             .setColor(0xacacac)
                             .setTitle('낚시 실패')
-                            .setDescription(result.reason || '아쉽게도 물고기가 도망갔어요... 😢'),
+                            .setDescription(result.reason || '찌를 올렸지만 아무 것도 없었다...'),
                     ],
                     content: '',
                     components: [],
@@ -207,8 +207,8 @@ async function handleTrashDecision(interaction: ButtonInteraction, decision: str
         await spot.save();
 
         embed
-            .setTitle(`🗑️ 쓰레기 ${state.fishType.name}를 버렸습니다`)
-            .addFields({name: '상태', value: '낚시터가 더러워졌습니다'}, {name: '현재 낚시터 청결도', value: `${spot.cleanliness}`});
+            .setTitle(`🗑️ ${state.fishType.name}를 물에 도로 버렸다...`)
+            .addFields({name: '상태', value: '낚시터가 더러워져써!'}, {name: '현재 낚시터 청결도', value: `${spot.cleanliness}`});
     } else {
         user.money -= trashPrice;
         user.totalAssets -= trashPrice;
@@ -218,7 +218,7 @@ async function handleTrashDecision(interaction: ButtonInteraction, decision: str
         await spot.save();
 
         embed
-            .setTitle('🗑️ 쓰레기를 처리했습니다')
+            .setTitle('🗑️ ${state.fishType.name}를 치웠다!')
             .addFields(
                 {name: '처리 비용', value: `${trashPrice.toFixed(0)}원`},
                 {name: '현재 보유금액', value: `${user.money.toFixed(0)}원`},
