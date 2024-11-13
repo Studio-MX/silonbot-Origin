@@ -12,14 +12,15 @@ export const gameConfig: GameConfig = {
                 {name: '휴지조각', chance: 1, price: 3, length: 4, rate: 'common', type: 'trash'},
                 {name: '` DROP TABLE users; --', chance: 0.7, price: 100, length: 0.5, rate: 'common', type: 'trash'},
                 {name: 'NaN', chance: 0.6, price: 100, length: 0.5, rate: 'common', type: 'trash'},
-                {name: '밀랍칠한 약간 녹슨 깎인 구리 반블록', chance: 0.6, price: 100, length: 0.5, rate: 'common', type: 'trash'},
-                {name: '고등어', chance: 7, price: 100, length: 35, rate: 'common'},
-                {name: '새우', chance: 5, price: 150, length: 60, rate: 'common'},
+                {name: '밀랍칠한 약간 녹슨 깎인 구리 반 블록', chance: 0.6, price: 100, length: 0.5, rate: 'common', type: 'trash'},
+                {name: '고등어', chance: 1.7, price: 100, length: 35, rate: 'common'},
+                {name: '새우', chance: 2.1, price: 150, length: 60, rate: 'common'},
+                {name: '붕장어', chance: 2.1, price: 150, length: 60, rate: 'common'},
             ],
         },
-       {
-          name: '강'
-          fishtype: [
+        {
+            name: '바다',
+            fishTypes: [
                 {name: '삼성 갤럭시 노트7의 형상을 띈 수류탄', chance: 0.8, price: 100, length: 153, rate: 'common', type: 'trash'},
                 {name: '삼성 갤럭시 S22라는 이름의 사기친 상품', chance: 0.9, price: 100, length: 157, rate: 'common', type: 'trash'},
                 {name: '벤츠 배터리', chance: 0.9, price: 100, length: 1500, rate: 'common', type: 'trash'},
@@ -27,10 +28,15 @@ export const gameConfig: GameConfig = {
                 {name: '담배꽁초', chance: 2, price: 10, length: 150, rate: 'common', type: 'trash'},
                 {name: 'undefined', chance: 0.9, price: 100, length: 150000, rate: 'common', type: 'trash'},
                 {name: '참붕어빵 포장지', chance: 1.2, price: 10, length: 15, rate: 'common', type: 'trash'},
+                {name: '이면수어', chance: 1.2, price: 10, length: 15, rate: 'common', type: 'trash'},
                 {name: '참붕어', chance: 1.4, price: 230, length: 43, rate: 'common', type: 'fish'},
                 {name: '산천어', chance: 1.2, price: 410, length: 51, rate: 'common', type: 'fish'},
+                {name: '붕어', chance: 1.1, price: 430, length: 51, rate: 'common', type: 'fish'},
+                {name: '임연수어', chance: 0.9, price: 5200, length: 51, rate: 'common', type: 'fish'},
                 {name: '키뮤의 사인', chance: 0.4, price: 230000, length: 30, rate: 'ultra-legendary', type: 'fish'},
-       },
+                {name: '부활절 달걀', chance: 0.04, price: 230000, length: 30, rate: 'secret', type: 'fish'},
+            ],
+        },
     ],
     fishWaitTime: {min: 2000, max: 5000},
     fishBiteTime: {min: 2000, max: 3000},
@@ -39,5 +45,5 @@ export const gameConfig: GameConfig = {
     priceVariation: 0.7,
     fishing_wait: ['매운탕 먹고 싶다...', '이 봇은 키뮤소프트의 봇 이프의 팬 봇입니다...', '물고기를 기다리는 중입니다...', '낚시 찌는 언제 흔들릴까...'],
     fishing_fake: ['아나필락시스쇼크가 찾아왔다!!!', '개발하기 귀찮다!!!', '찌가 움직였나?!?!', '머랭!!!', '키뮤님 싫어해요!!!', '낚시대가 동요친다!!!'],
-    fishing_true: ['찌가 움직였다!?!?', '낚시대가 요동친다!!!', '매우 무거운 느낌이 든다!!!', '키뮤님 사랑해요!!!'],
+    fishing_true: ['찌가 움직였다!?!?', '낚시대가 요동친다!!!', '매우 무거운 느낌이 든다!!!', '키뮤님 사랑해요!!!', '어라???', '파도가 일어난다!!!'],
 };
