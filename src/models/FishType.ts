@@ -7,8 +7,8 @@ export class FishType extends Model {
     declare chance: number;
     declare price: number;
     declare length: number;
-    declare type: 'trash' | 'fish' | 'dino';
-    declare rate: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'ultra-legendary';
+    declare type: 'trash' | 'fish';
+    declare rate: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'ultra-legendary' | 'secret';
     declare terrain: number;
 }
 FishType.init(
@@ -34,10 +34,10 @@ FishType.init(
             type: DataTypes.INTEGER,
         },
         type: {
-            type: DataTypes.ENUM('trash', 'fish', 'dino'),
+            type: DataTypes.ENUM('trash', 'fish'),
         },
         rate: {
-            type: DataTypes.ENUM('common', 'uncommon', 'rare', 'epic', 'legendary', 'ultra-legendary'),
+            type: DataTypes.ENUM('common', 'uncommon', 'rare', 'epic', 'legendary', 'ultra-legendary', 'secret'),
         },
         terrain: {
             type: DataTypes.INTEGER,
