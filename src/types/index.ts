@@ -3,15 +3,15 @@ export interface FishType {
     chance: number;
     price: number;
     length?: number;
-    type?: 'trash' | 'fish' | 'dino';
+    type?: 'trash' | 'fish' ;
     rate?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'ultra-legendary' | 'secret';
 }
 
 export const rateNames: Record<'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'ultra-legendary' | 'secret', string> = {
     common: '흔함',
-    uncommon: '흔하지는 않음',
-    rare: '희귀함',
-    epic: '매우 희귀함',
+    uncommon: '일반',
+    rare: '희귀',
+    epic: '매우 희귀',
     legendary: '전설',
     'ultra-legendary': '초전설',
     secret: '||숨겨진 물고기||',
