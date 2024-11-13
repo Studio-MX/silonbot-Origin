@@ -2,8 +2,8 @@ import {ChatInputCommandInteraction, EmbedBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
 import {FacilityService} from '../../services/facility.service';
-import {FishingSpot} from '../../models/FishingSpot';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {fishingService} from '../../services/fishing.service';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -28,7 +28,7 @@ export class DestroyFacilityCommand extends BaseCommand {
 
     protected async handleCommand(interaction: ChatInputCommandInteraction): Promise<CommandResult> {
         const channelId = interaction.channelId;
-        const spot = await FishingSpot.findOne({where: {channelId}});
+        const spot = await fishingService.getFishingSpot(channelId);
 
         if (!spot) {
             return {
@@ -46,7 +46,7 @@ export class DestroyFacilityCommand extends BaseCommand {
             };
         }
 
-        const facilities = spot.facilities as string[];
+        const facilities = spot.facilities.map((f) => f.name);
         if (facilities.length === 0) {
             return {
                 content: '철거할 시설이 없습니다.',

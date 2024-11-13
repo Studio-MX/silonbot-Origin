@@ -2,9 +2,9 @@ import {ChatInputCommandInteraction, EmbedBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
 import {fishingService} from '../../services/fishing.service';
-import {User} from '../../models/User';
 import {gameConfig} from '../../config/game.config';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {prisma} from '../../../prisma';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -29,7 +29,7 @@ export class FishingSpotInfoCommand extends BaseCommand {
 
         let ownerInfo = '없음';
         if (spot.ownerId) {
-            const owner = await User.findOne({where: {id: spot.ownerId}});
+            const owner = await prisma.users.findUnique({where: {id: spot.ownerId}});
             if (owner) {
                 ownerInfo = owner.username;
             }

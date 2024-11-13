@@ -1,8 +1,8 @@
 import {ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
-import {User} from '../../models/User';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {prisma} from '../../../prisma';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -24,7 +24,7 @@ export class GamblingCommand extends BaseCommand {
         const userId = interaction.user.id;
         const betAmount = interaction.options.getInteger('금액', true);
 
-        const user = await User.findByPk(userId);
+        let user = await prisma.users.findUnique({where: {id: userId}});
         if (!user) {
             return {
                 success: false,
@@ -43,9 +43,17 @@ export class GamblingCommand extends BaseCommand {
 
         if (isWin) {
             const winAmount = betAmount;
-            user.money += winAmount;
-            user.totalAssets += winAmount;
-            await user.save();
+            user = await prisma.users.update({
+                where: {id: userId},
+                data: {
+                    money: {
+                        increment: winAmount,
+                    },
+                    totalAssets: {
+                        increment: winAmount,
+                    },
+                },
+            });
 
             const embed = new EmbedBuilder()
                 .setColor(0x00ae86)
@@ -58,9 +66,17 @@ export class GamblingCommand extends BaseCommand {
                 content: ``,
             };
         } else {
-            user.money -= betAmount;
-            user.totalAssets -= betAmount;
-            await user.save();
+            user = await prisma.users.update({
+                where: {id: userId},
+                data: {
+                    money: {
+                        increment: -betAmount,
+                    },
+                    totalAssets: {
+                        increment: -betAmount,
+                    },
+                },
+            });
 
             const embed = new EmbedBuilder()
                 .setColor(0xff0000)

@@ -1,4 +1,4 @@
-import {FishingSpot} from '../models/FishingSpot';
+import {prisma} from '../../prisma';
 import type {FishType} from '../types';
 
 export abstract class BaseFacility {
@@ -8,8 +8,8 @@ export abstract class BaseFacility {
 
     constructor(protected channelId: string) {}
 
-    protected async getSpot(): Promise<FishingSpot | null> {
-        return await FishingSpot.findOne({where: {channelId: this.channelId}});
+    protected async getSpot() {
+        return await prisma.fishingSpots.findUnique({where: {channelId: this.channelId}});
     }
 
     adjustFishChance(fish: FishType, cleanliness: number): void {}

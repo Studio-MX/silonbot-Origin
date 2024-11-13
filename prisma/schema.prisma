@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model FishingHistories {
+  id        Int      @id @default(autoincrement())
+  userId    String  
+  channelId String  
+  fishName  String   
+  fishType  String?
+  fishRate  String?
+  length    Float?   @db.Float
+  price     Int
+  caughtAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FishingSpots {
+  channelId          String   @id 
+  reputation         Int      @default(0)
+  cleanliness        Int      @default(0)
+  fee                Int      @default(0)
+  terrain            Int      @default(0)
+  minPurchasePrice   Int      @default(0)
+  ownerId            String?
+  isPurchaseDisabled Boolean  @default(false)
+  facilities         Facility[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Facility {
+  id                    String        @id 
+  name                  String    
+  fishingSpotchannelId  String    
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  fishingSpot FishingSpots @relation(fields: [fishingSpotchannelId], references: [channelId])
+}
+
+model ServerLists {
+  id        String   @id 
+  name      String 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Users {
+  id          String   @id
+  username    String 
+  fishCaught  Int      @default(0)
+  money       Int      @default(0)
+  totalAssets Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

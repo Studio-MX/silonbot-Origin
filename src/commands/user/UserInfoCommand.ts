@@ -1,8 +1,8 @@
 import {ChatInputCommandInteraction, EmbedBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
-import {User} from '../../models/User';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {prisma} from '../../../prisma';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -18,7 +18,7 @@ export class UserInfoCommand extends BaseCommand {
 
     protected async handleCommand(interaction: ChatInputCommandInteraction): Promise<CommandResult> {
         const targetUser = interaction.options.getUser('사용자', true);
-        let user = await User.findOne({where: {id: targetUser.id}});
+        let user = await prisma.users.findUnique({where: {id: targetUser.id}});
 
         if (!user) {
             return {

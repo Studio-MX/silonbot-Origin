@@ -2,8 +2,8 @@ import {ChatInputCommandInteraction, EmbedBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
 import {FacilityService} from '../../services/facility.service';
-import {FishingSpot} from '../../models/FishingSpot';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {fishingService} from '../../services/fishing.service';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -39,7 +39,7 @@ export class BuildFacilityCommand extends BaseCommand {
         const channelId = interaction.channelId;
 
         try {
-            const spot = await FishingSpot.findOne({where: {channelId}});
+            const spot = await fishingService.getFishingSpot(channelId);
             if (!spot) {
                 return {
                     content: '이 채널에는 낚시터가 없습니다.',

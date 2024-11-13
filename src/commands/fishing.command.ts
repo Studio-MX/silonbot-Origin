@@ -1,8 +1,8 @@
 import {ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder} from 'discord.js';
 import {fishingService} from '../services/fishing.service';
-import {User} from '../models/User';
 import {rateNames} from '../types';
 import {UpdateBotState} from '../events/updateBotState';
+import {prisma} from '../../prisma';
 
 export async function handleFishingInteraction(interaction: ButtonInteraction) {
     if (!interaction.isButton()) return;
@@ -24,22 +24,35 @@ export async function handleFishingInteraction(interaction: ButtonInteraction) {
             const result = await fishingService.checkCatch(interaction.user.id);
             if (result.success && result.fish) {
                 fishingService.clearTimer(interaction.user.id);
-                let user = await User.findOne({where: {id: interaction.user.id}});
+                let user = await prisma.users.findUnique({
+                    where: {id: interaction.user.id},
+                });
+
                 if (!user) {
-                    user = await User.create({
-                        id: interaction.user.id,
-                        username: interaction.user.username,
-                        fishCaught: 0,
-                        money: 0,
+                    user = await prisma.users.create({
+                        data: {
+                            id: interaction.user.id,
+                            username: interaction.user.username,
+                            fishCaught: 0,
+                            money: 0,
+                            totalAssets: 0,
+                        },
                     });
                 }
+
                 const earnedMoney = result.fish.price;
                 const {finalPrice, feeAmount} = await fishingService.handleFishingReward(interaction.user.id, state.channelId, earnedMoney);
                 await fishingService.updateFishingSpotReputation(state.channelId, earnedMoney);
-                user.fishCaught++;
-                user.money += finalPrice;
-                user.totalAssets += finalPrice;
-                await user.save();
+
+                user = await prisma.users.update({
+                    where: {id: user.id},
+                    data: {
+                        fishCaught: user.fishCaught + 1,
+                        money: user.money + finalPrice,
+                        totalAssets: user.totalAssets + finalPrice,
+                    },
+                });
+
                 if (earnedMoney > 0) {
                     if (result.fish.type === 'trash') {
                         const trashEmbed = new EmbedBuilder()
@@ -194,7 +207,9 @@ async function handleTrashDecision(interaction: ButtonInteraction, decision: str
     if (!state || !state.fishType) return;
 
     const trashPrice = Math.abs(state.fishType.price);
-    const user = await User.findOne({where: {id: interaction.user.id}});
+    const user = await prisma.users.findUnique({
+        where: {id: interaction.user.id},
+    });
     if (!user) return;
 
     const spot = await fishingService.getFishingSpot(state.channelId);
@@ -203,26 +218,38 @@ async function handleTrashDecision(interaction: ButtonInteraction, decision: str
     const embed = new EmbedBuilder().setColor(decision === 'trash_throw' ? '#ff0000' : 0x00ae86);
 
     if (decision === 'trash_throw') {
-        spot.cleanliness -= ~~(trashPrice * 0.1);
-        await spot.save();
+        await prisma.fishingSpots.update({
+            where: {channelId: spot.channelId},
+            data: {
+                cleanliness: spot.cleanliness - Math.floor(trashPrice * 0.1),
+            },
+        });
 
         embed
             .setTitle(`🗑️ ${state.fishType.name}를 물에 도로 버렸다...`)
             .addFields({name: '상태', value: '낚시터가 더러워져써!'}, {name: '현재 낚시터 청결도', value: `${spot.cleanliness}`});
     } else {
-        user.money -= trashPrice;
-        user.totalAssets -= trashPrice;
-        await user.save();
+        await prisma.users.update({
+            where: {id: user.id},
+            data: {
+                money: user.money - trashPrice,
+                totalAssets: user.totalAssets - trashPrice,
+            },
+        });
 
-        spot.cleanliness += ~~(trashPrice * 0.1);
-        await spot.save();
+        await prisma.fishingSpots.update({
+            where: {channelId: spot.channelId},
+            data: {
+                cleanliness: spot.cleanliness + Math.floor(trashPrice * 0.1),
+            },
+        });
 
         embed
             .setTitle(`🗑️ ${state.fishType.name}를 치웠다!`)
             .addFields(
                 {name: '처리 비용', value: `${trashPrice.toFixed(0)}원`},
-                {name: '현재 보유금액', value: `${user.money.toFixed(0)}원`},
-                {name: '현재 낚시터 청결도', value: `${spot.cleanliness}`},
+                {name: '현재 보유금액', value: `${user.money - trashPrice}원`},
+                {name: '현재 낚시터 청결도', value: `${spot.cleanliness + Math.floor(trashPrice * 0.1)}`},
             );
     }
 

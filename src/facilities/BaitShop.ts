@@ -1,5 +1,4 @@
 import {BaseFacility} from '../core/BaseFacility';
-import {FishingSpot} from '../../models/FishingSpot';
 import type {FishType} from '../types';
 import {FacilityService} from '../services/facility.service';
 

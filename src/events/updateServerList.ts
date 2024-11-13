@@ -1,13 +1,15 @@
 import type {Client} from 'discord.js';
-import {ServerList} from '../models/ServerList';
+import {prisma} from '../../prisma';
 
 async function UpdateServerList(client: Client) {
-    await ServerList.destroy({where: {}});
+    prisma.serverLists.deleteMany();
 
     client.guilds.cache.forEach((guild) => {
-        ServerList.create({
-            id: guild.id,
-            name: guild.name,
+        prisma.serverLists.create({
+            data: {
+                id: guild.id,
+                name: guild.name,
+            },
         });
     });
 }

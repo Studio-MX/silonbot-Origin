@@ -1,5 +1,4 @@
 import {ActivityType, type Client} from 'discord.js';
-import {ServerList} from '../models/ServerList';
 
 let client: Client;
 

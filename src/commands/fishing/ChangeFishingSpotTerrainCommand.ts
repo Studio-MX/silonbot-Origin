@@ -1,7 +1,6 @@
 import {ChatInputCommandInteraction} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
-import {User} from '../../models/User';
 import {gameConfig} from '../../config/game.config';
 import {fishingService} from '../../services/fishing.service';
 import {CommandRegistry} from '../../core/CommandRegistry';

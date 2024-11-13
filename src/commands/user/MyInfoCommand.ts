@@ -1,8 +1,8 @@
 import {ChatInputCommandInteraction, EmbedBuilder} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
-import {User} from '../../models/User';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {prisma} from '../../../prisma';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -15,15 +15,13 @@ export class MyInfoCommand extends BaseCommand {
     }
 
     protected async handleCommand(interaction: ChatInputCommandInteraction): Promise<CommandResult> {
-        let user = await User.findOne({where: {id: interaction.user.id}});
+        let user = await prisma.users.findUnique({where: {id: interaction.user.id}});
 
         if (!user) {
-            user = await User.create({
-                id: interaction.user.id,
-                username: interaction.user.username,
-                fishCaught: 0,
-                money: 0,
-            });
+            return {
+                success: false,
+                content: '낚시를 적어도 한번은 하셔야 해요!',
+            };
         }
 
         const embed = new EmbedBuilder()

@@ -1,8 +1,8 @@
 import {ChatInputCommandInteraction, ButtonBuilder, ActionRowBuilder, ButtonStyle, EmbedBuilder, ComponentType, ButtonInteraction} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
-import {User} from '../../models/User';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {prisma} from '../../../prisma';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -69,18 +69,27 @@ export class MoneyReceiveCommand extends BaseCommand {
 
             if (selectedAnswer === correctAnswer) {
                 const reward = Math.floor(Math.random() * 51) + 10;
-                const user = await User.findByPk(userId);
 
-                if (!user) {
+                let user: {money: number};
+
+                try {
+                    user = await prisma.users.update({
+                        where: {id: userId},
+                        data: {
+                            money: {
+                                increment: reward,
+                            },
+                            totalAssets: {
+                                increment: reward,
+                            },
+                        },
+                    });
+                } catch (error) {
                     return {
                         success: false,
                         content: '낚시를 적어도 한번은 하셔야 해요!',
                     };
                 }
-
-                user.money += reward;
-                user.totalAssets += reward;
-                await user.save();
 
                 const successEmbed = new EmbedBuilder()
                     .setColor(0x00ae86)

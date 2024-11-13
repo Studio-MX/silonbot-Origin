@@ -3,7 +3,6 @@ await folderImport('facilities');
 await folderImport('commands');
 const events = await folderImport('events');
 import {Client, GatewayIntentBits, Partials, Events} from 'discord.js';
-import {sequelize} from './sequelize';
 import {CommandRegistry} from './src/core/CommandRegistry';
 import {handleFishingInteraction} from './src/commands/fishing.command';
 const client = new Client({
@@ -14,7 +13,6 @@ const client = new Client({
 const commandRegistry = CommandRegistry.getInstance();
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user?.tag}`);
-    await sequelize.sync();
     await commandRegistry.registerWithClient(client, process.env.DISCORD_TOKEN!);
     for (const e of events) {
         const event = e as {default?: (client: Client) => {}};

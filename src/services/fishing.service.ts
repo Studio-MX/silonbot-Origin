@@ -1,8 +1,6 @@
 import type {FishType, FishingState} from '../types';
 import {gameConfig} from '../config/game.config';
-import {FishingSpot} from '../models/FishingSpot';
-import {User} from '../models/User';
-import {FishingHistory} from '../models/FishingHistory';
+import {prisma} from '../../prisma';
 import {FacilityService} from './facility.service';
 import {deepCopy} from '../utils/deepCopy.util';
 
@@ -16,7 +14,6 @@ class FishingService {
         terrainFishs = deepCopy(terrainFishs);
 
         const random = Math.random();
-
         let allChance = 0;
 
         for (const fish of terrainFishs) {
@@ -24,26 +21,18 @@ class FishingService {
                 const facility = FacilityService.getFacilityInfo(facilityName);
                 if (facility) facility.adjustFishChance(fish, cleanliness);
             }
-
             allChance += fish.chance;
         }
 
         let cumulativeChance = 0;
-
         for (const fish of terrainFishs) {
             cumulativeChance += fish.chance / allChance;
             if (random <= cumulativeChance) {
-                if (fish.length) {
-                    fish.length = fish.length * 0.8 + Math.random() * fish.length * 0.2;
-                } else {
-                    fish.length = 10 + Math.random() * 100;
-                }
-
+                fish.length = fish.length ? fish.length * 0.8 + Math.random() * fish.length * 0.2 : 10 + Math.random() * 100;
                 if (gameConfig.priceVariation) {
                     const variation = (Math.random() * 2 - 1) * gameConfig.priceVariation;
                     fish.price = Math.floor(fish.price * (1 + variation));
                 }
-
                 return fish;
             }
         }
@@ -61,134 +50,123 @@ class FishingService {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
-    async createFishingSpot(channelId: string, minPurchasePrice: number): Promise<FishingSpot> {
-        return await FishingSpot.create({
-            channelId,
-            reputation: 0,
-            cleanliness: 0,
-            fee: 0,
-            facilities: [],
-            minPurchasePrice,
-            ownerId: null,
-            isPurchaseDisabled: false,
+    async createFishingSpot(channelId: string, minPurchasePrice: number) {
+        return await prisma.fishingSpots.create({
+            data: {
+                channelId,
+                reputation: 0,
+                cleanliness: 0,
+                fee: 0,
+                facilities: {
+                    create: [],
+                },
+                minPurchasePrice,
+                ownerId: null,
+                isPurchaseDisabled: false,
+            },
         });
     }
 
-    async getFishingSpot(channelId: string): Promise<FishingSpot | null> {
-        return await FishingSpot.findOne({where: {channelId}});
+    async getFishingSpot(channelId: string) {
+        return await prisma.fishingSpots.findUnique({
+            where: {channelId},
+            include: {
+                facilities: true,
+            },
+        });
     }
 
-    async togglePurchaseDisabled(channelId: string): Promise<{success: boolean; error?: string; isDisabled?: boolean}> {
+    async togglePurchaseDisabled(channelId: string) {
         const spot = await this.getFishingSpot(channelId);
         if (!spot) {
             return {success: false, error: '이 채널은 낚시터가 아니야!'};
         }
 
-        spot.isPurchaseDisabled = !spot.isPurchaseDisabled;
-        await spot.save();
+        const updatedSpot = await prisma.fishingSpots.update({
+            where: {channelId},
+            data: {isPurchaseDisabled: !spot.isPurchaseDisabled},
+        });
 
-        return {
-            success: true,
-            isDisabled: spot.isPurchaseDisabled,
-        };
+        return {success: true, isDisabled: updatedSpot.isPurchaseDisabled};
     }
 
-    async buyFishingSpot(channelId: string, userId: string): Promise<{success: boolean; error?: string}> {
+    async buyFishingSpot(channelId: string, userId: string) {
         const spot = await this.getFishingSpot(channelId);
-        if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아니야!'};
-        }
+        if (!spot) return {success: false, error: '이 채널은 낚시터가 아니야!'};
+        if (spot.isPurchaseDisabled) return {success: false, error: '이 낚시터는 현재 매입이 금지되어 있어!'};
+        if (spot.ownerId === userId) return {success: false, error: '이미 너가 주인이자나!'};
 
-        if (spot.isPurchaseDisabled) {
-            return {success: false, error: '이 낚시터는 현재 매입이 금지되어 있어!'};
-        }
-
-        if (spot.ownerId === userId) {
-            return {success: false, error: '이미 당신이 주인입니다.'};
-        }
-
-        const buyer = await User.findOne({where: {id: userId}});
-        if (!buyer) {
-            return {success: false, error: '낚시를 적어도 한 번은 해야 해'};
-        }
-
-        if (buyer.money < spot.minPurchasePrice) {
-            return {success: false, error: `낚시터를 구매하려면 최소 ${spot.minPurchasePrice}원이 필요해!`};
-        }
+        const buyer = await prisma.users.findUnique({where: {id: userId}});
+        if (!buyer) return {success: false, error: '낚시를 적어도 한 번은 해야 해!'};
+        if (buyer.money < spot.minPurchasePrice) return {success: false, error: `낚시터를 구매하려면 최소 ${spot.minPurchasePrice}원이 필요해!`};
 
         if (spot.ownerId) {
-            const currentOwner = await User.findOne({where: {id: spot.ownerId}});
-            if (currentOwner) {
-                currentOwner.money += spot.minPurchasePrice;
-                currentOwner.totalAssets -= spot.minPurchasePrice;
-                await currentOwner.save();
-            }
+            await prisma.users.update({
+                where: {id: spot.ownerId},
+                data: {money: {increment: spot.minPurchasePrice}, totalAssets: {decrement: spot.minPurchasePrice}},
+            });
         }
 
-        buyer.money -= spot.minPurchasePrice;
-        await buyer.save();
+        await prisma.users.update({
+            where: {id: userId},
+            data: {money: {decrement: spot.minPurchasePrice}},
+        });
 
-        spot.ownerId = userId;
-        await spot.save();
+        await prisma.fishingSpots.update({
+            where: {channelId},
+            data: {ownerId: userId},
+        });
 
         return {success: true};
     }
 
-    async setFishingSpotFee(channelId: string, userId: string, fee: number): Promise<{success: boolean; error?: string}> {
-        if (fee < 0 || fee > 100) {
-            return {success: false, error: '수수료는 0% ~ 100% 여야 해!'};
-        }
+    async setFishingSpotFee(channelId: string, userId: string, fee: number) {
+        if (fee < 0 || fee > 100) return {success: false, error: '수수료는 0% ~ 100% 여야 해!'};
 
         const spot = await this.getFishingSpot(channelId);
-        if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아니야!'};
-        }
+        if (!spot) return {success: false, error: '이 채널은 낚시터가 아니야!'};
+        if (spot.ownerId !== userId) return {success: false, error: '남의 땅을 건드리면 안대!\n낚시터 수수료는 낚시터 소유자만 수정할 수 있습니다.'};
 
-        if (spot.ownerId !== userId) {
-            return {success: false, error: '남의 땅을 건드리면 안대!\n낚시터 수수료는 낚시터 소유자만 수정할 수 있습니다.'};
-        }
-
-        spot.fee = fee;
-        await spot.save();
+        await prisma.fishingSpots.update({
+            where: {channelId},
+            data: {fee},
+        });
 
         return {success: true};
     }
 
-    async setSpotTerrain(channelId: string, userId: string, terrain: number): Promise<{success: boolean; error?: string}> {
-        if (!gameConfig.terrains[terrain]) {
-            return {success: false, error: '지형이 없습니다!'};
-        }
+    async setSpotTerrain(channelId: string, userId: string, terrain: number) {
+        if (!gameConfig.terrains[terrain]) return {success: false, error: '지형이 없습니다!'};
 
         const spot = await this.getFishingSpot(channelId);
-        if (!spot) {
-            return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
-        }
+        if (!spot) return {success: false, error: '이 채널은 낚시터가 아닙니다!'};
+        if (spot.ownerId !== userId) return {success: false, error: '낚시터 주인만 지형를 설정할 수 있습니다!'};
 
-        if (spot.ownerId !== userId) {
-            return {success: false, error: '낚시터 주인만 지형를 설정할 수 있습니다!'};
-        }
-
-        spot.terrain = terrain;
-        await spot.save();
+        await prisma.fishingSpots.update({
+            where: {channelId},
+            data: {terrain},
+        });
 
         return {success: true};
     }
 
-    async updateFishingSpotReputation(channelId: string, fishPrice: number): Promise<void> {
+    async updateFishingSpotReputation(channelId: string, fishPrice: number) {
         const spot = await this.getFishingSpot(channelId);
         if (spot) {
             let reputationIncrease = Math.abs(fishPrice);
             let currentReputationMultiplier = 1;
 
-            for (const facilityName of spot.facilities) {
-                const facility = FacilityService.getFacilityInfo(facilityName);
+            for (const {name} of spot.facilities) {
+                const facility = FacilityService.getFacilityInfo(name);
                 if (facility) currentReputationMultiplier = facility.adjustReputationMultiplier(currentReputationMultiplier);
             }
 
             reputationIncrease *= currentReputationMultiplier;
 
-            spot.reputation += reputationIncrease;
-            await spot.save();
+            await prisma.fishingSpots.update({
+                where: {channelId},
+                data: {reputation: {increment: reputationIncrease}},
+            });
         }
     }
 
@@ -200,7 +178,11 @@ class FishingService {
 
         const waitTime = this.getRandomWaitTime();
         const biteTime = this.getRandomFishBiteTime();
-        const fishType = this.getRandomFish(spot.terrain, spot.facilities as string[], spot.cleanliness);
+        const fishType = this.getRandomFish(
+            spot.terrain,
+            spot.facilities.map((f) => f.name),
+            spot.cleanliness,
+        );
 
         const state = {
             isActive: true,
@@ -218,34 +200,6 @@ class FishingService {
         return {success: true};
     }
 
-    async handleFishingReward(
-        userId: string,
-        channelId: string,
-        fishPrice: number,
-    ): Promise<{
-        finalPrice: number;
-        feeAmount: number;
-        ownerEarnings: number;
-    }> {
-        const spot = await this.getFishingSpot(channelId);
-        if (!spot || fishPrice <= 0) {
-            return {finalPrice: fishPrice, feeAmount: 0, ownerEarnings: 0};
-        }
-
-        const feeAmount = spot.ownerId === userId ? 0 : Math.floor((fishPrice * spot.fee) / 100);
-        const finalPrice = fishPrice - feeAmount;
-
-        if (spot.ownerId && feeAmount > 0) {
-            const owner = await User.findOne({where: {id: spot.ownerId}});
-            if (owner) {
-                owner.money += feeAmount;
-                await owner.save();
-            }
-        }
-
-        return {finalPrice, feeAmount, ownerEarnings: feeAmount};
-    }
-
     setBitedTime(userId: string): void {
         const state = this.fishingStates.get(userId);
         if (state) {
@@ -254,15 +208,26 @@ class FishingService {
         }
     }
 
-    async checkCatch(userId: string): Promise<{
-        success: boolean;
-        fish?: FishType;
-        reason?: string;
-    }> {
-        const state = this.fishingStates.get(userId);
-        if (!state || !state.isActive || !state.fishType) {
-            return {success: false};
+    async handleFishingReward(userId: string, channelId: string, fishPrice: number) {
+        const spot = await this.getFishingSpot(channelId);
+        if (!spot || fishPrice <= 0) return {finalPrice: fishPrice, feeAmount: 0, ownerEarnings: 0};
+
+        const feeAmount = spot.ownerId === userId ? 0 : Math.floor((fishPrice * spot.fee) / 100);
+        const finalPrice = fishPrice - feeAmount;
+
+        if (spot.ownerId && feeAmount > 0) {
+            await prisma.users.update({
+                where: {id: spot.ownerId},
+                data: {money: {increment: feeAmount}},
+            });
         }
+
+        return {finalPrice, feeAmount, ownerEarnings: feeAmount};
+    }
+
+    async checkCatch(userId: string) {
+        const state = this.fishingStates.get(userId);
+        if (!state || !state.isActive || !state.fishType) return {success: false};
 
         if (!state.bitedAt || Date.now() - state.bitedAt < gameConfig.minCatchTime) {
             return {
@@ -274,11 +239,9 @@ class FishingService {
         let escapeChance = gameConfig.fishEscapeChance;
         const spot = await this.getFishingSpot(state.channelId);
         if (spot) {
-            for (const facilityName of spot.facilities as string[]) {
-                const facility = FacilityService.getFacilityInfo(facilityName);
-                if (facility) {
-                    escapeChance *= facility.adjustEscapeChance(escapeChance);
-                }
+            for (const {name} of spot.facilities) {
+                const facility = FacilityService.getFacilityInfo(name);
+                if (facility) escapeChance *= facility.adjustEscapeChance(escapeChance);
             }
         }
 
@@ -290,21 +253,20 @@ class FishingService {
         }
 
         if (state.fishType) {
-            await FishingHistory.create({
-                userId: state.userId,
-                channelId: state.channelId,
-                fishName: state.fishType.name,
-                fishType: state.fishType.type,
-                fishRate: state.fishType.rate,
-                length: state.fishType.length,
-                price: state.fishType.price,
+            await prisma.fishingHistories.create({
+                data: {
+                    userId: state.userId,
+                    channelId: state.channelId,
+                    fishName: state.fishType.name,
+                    fishType: state.fishType.type,
+                    fishRate: state.fishType.rate,
+                    length: state.fishType.length,
+                    price: state.fishType.price,
+                },
             });
         }
 
-        return {
-            success: true,
-            fish: state.fishType,
-        };
+        return {success: true, fish: state.fishType};
     }
 
     getFishingState(userId: string): FishingState | undefined {

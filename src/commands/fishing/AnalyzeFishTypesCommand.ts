@@ -4,9 +4,9 @@ import type {CommandResult} from '../../types/command.types';
 import {FacilityService} from '../../services/facility.service';
 import {CommandRegistry} from '../../core/CommandRegistry';
 import {gameConfig} from '../../config/game.config';
-import {FishingSpot} from '../../models/FishingSpot';
 import {deepCopy} from '../../utils/deepCopy.util';
 import {rateNames} from '../../types';
+import {fishingService} from '../../services/fishing.service';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -20,7 +20,7 @@ export class AnalyzeFishTypesCommand extends BaseCommand {
 
     protected async handleCommand(interaction: ChatInputCommandInteraction): Promise<CommandResult> {
         const channelId = interaction.channelId;
-        const spot = await FishingSpot.findOne({where: {channelId}});
+        const spot = await fishingService.getFishingSpot(channelId);
 
         if (!spot) {
             return {
@@ -45,8 +45,8 @@ export class AnalyzeFishTypesCommand extends BaseCommand {
         for (const fish of fishTypes) {
             if (fish.rate === 'secret') continue;
 
-            for (const facilityName of spot.facilities) {
-                const facility = FacilityService.getFacilityInfo(facilityName);
+            for (const {name} of spot.facilities) {
+                const facility = FacilityService.getFacilityInfo(name);
                 if (facility) facility.adjustFishChance(fish, spot.cleanliness);
             }
 

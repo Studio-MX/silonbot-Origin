@@ -2,8 +2,8 @@ import {ChatInputCommandInteraction} from 'discord.js';
 import {BaseCommand} from '../../core/BaseCommand';
 import type {CommandResult} from '../../types/command.types';
 import {fishingService} from '../../services/fishing.service';
-import {User} from '../../models/User';
 import {CommandRegistry} from '../../core/CommandRegistry';
+import {prisma} from '../../../prisma';
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -37,7 +37,7 @@ export class SetMinPurchasePriceCommand extends BaseCommand {
         }
 
         const newPrice = interaction.options.getInteger('가격', true);
-        const owner = await User.findOne({where: {id: spot.ownerId}});
+        const owner = await prisma.users.findUnique({where: {id: spot.ownerId}});
 
         if (!owner) {
             return {
@@ -55,8 +55,12 @@ export class SetMinPurchasePriceCommand extends BaseCommand {
             };
         }
 
-        spot.minPurchasePrice = newPrice;
-        await spot.save();
+        await prisma.fishingSpots.update({
+            where: {channelId: spot.channelId},
+            data: {
+                minPurchasePrice: newPrice,
+            },
+        });
 
         return {
             content: `최소 매입가가 ${newPrice}원으로 변경되었습니다.`,
