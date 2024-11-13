@@ -28,7 +28,7 @@ export class FishingCommand extends BaseCommand {
 
         if (fishingService.isFishing(userId)) {
             return {
-                content: '이미 낚시중이잖아!',
+                content: '낚시를 할 때는 낚시에 집중하자...',
                 success: false,
                 ephemeral: true,
             };
