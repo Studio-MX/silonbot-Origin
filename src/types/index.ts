@@ -3,7 +3,7 @@ export interface FishType {
     chance: number;
     price: number;
     length?: number;
-    type?: 'trash' | 'fish' ;
+    type?: 'trash' | 'fish';
     rate?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'ultra-legendary' | 'secret';
 }
 
