@@ -218,7 +218,7 @@ async function handleTrashDecision(interaction: ButtonInteraction, decision: str
         await spot.save();
 
         embed
-            .setTitle('🗑️ ${state.fishType.name}를 치웠다!')
+            .setTitle(`🗑️ ${state.fishType.name}를 치웠다!`)
             .addFields(
                 {name: '처리 비용', value: `${trashPrice.toFixed(0)}원`},
                 {name: '현재 보유금액', value: `${user.money.toFixed(0)}원`},
